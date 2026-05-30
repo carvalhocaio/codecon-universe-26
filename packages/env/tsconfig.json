@@ -1,0 +1,3 @@
+{
+  "extends": "@codecon-universe-26/config/tsconfig.base.json"
+}
