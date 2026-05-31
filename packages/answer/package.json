@@ -1,0 +1,16 @@
+{
+  "name": "@codecon-universe-26/answer",
+  "version": "42.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check-types": "tsc -b"
+  },
+  "devDependencies": {
+    "@codecon-universe-26/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

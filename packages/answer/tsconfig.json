@@ -1,0 +1,8 @@
+{
+  "extends": "@codecon-universe-26/config/tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src"]
+}
