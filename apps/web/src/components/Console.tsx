@@ -48,7 +48,7 @@ export default function Console({ onSubmit, isProcessing, isRevealed, question, 
           <button
             id="compute-button"
             type="submit"
-            disabled={isProcessing || isRevealed || !question.trim()}
+            disabled={isProcessing || isRevealed}
             className="group relative px-6 py-3.5 rounded-lg font-semibold text-sm tracking-wide transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-r from-dt-green/90 to-emerald-500/90 text-dt-bg hover:from-dt-green hover:to-emerald-400 hover:shadow-[0_0_40px_rgba(124,255,178,0.4)] hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap overflow-hidden"
           >
             {/* Button glow sweep effect */}
