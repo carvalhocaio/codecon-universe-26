@@ -1,11 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import {
-  mockAskUniverse,
-  PROCESSING_LOGS,
-  type LogEntry,
-} from "@/lib/mocks";
+import { PROCESSING_LOGS, type LogEntry } from "@/lib/mocks";
 import { playClick, playBeep, playSuccess, startHum, stopHum } from "@/lib/audio";
 
 import BackgroundEffect from "@/components/BackgroundEffect";
@@ -15,25 +11,23 @@ import ProcessingLogs from "@/components/ProcessingLogs";
 import RevealAnswer from "@/components/RevealAnswer";
 import QuestionGenerator from "@/components/QuestionGenerator";
 import DontPanic from "@/components/DontPanic";
-
-/**
- * ═══════════════════════════════════════════════════════════════
- *  Deep Thought as a Service — Main Page
- *  A parody enterprise SaaS inspired by The Hitchhiker's Guide.
- * ═══════════════════════════════════════════════════════════════
- */
+import Dashboard from "@/components/Dashboard";
 
 type Phase = "idle" | "processing" | "revealed";
 
+const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL ?? "http://localhost:4242";
+
 export default function Home() {
   const [phase, setPhase] = useState<Phase>("idle");
+  const [question, setQuestion] = useState("");
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [progress, setProgress] = useState(0);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     return () => {
       stopHum();
+      abortRef.current?.abort();
     };
   }, []);
 
@@ -47,6 +41,42 @@ export default function Home() {
     });
   };
 
+  const runFallbackSimulation = useCallback(
+    (onDone: () => void) => {
+      const totalDuration = 5000;
+      const logCount = PROCESSING_LOGS.length;
+      const logInterval = totalDuration / logCount;
+      let logIndex = 0;
+
+      const progressInterval = setInterval(() => {
+        setProgress((prev) => {
+          const target = ((logIndex + 1) / logCount) * 100;
+          return Math.min(prev + (target - prev) * 0.15, 100);
+        });
+      }, 50);
+
+      const addNextLog = () => {
+        if (logIndex >= logCount) {
+          clearInterval(progressInterval);
+          setProgress(100);
+          onDone();
+          return;
+        }
+        const entry = PROCESSING_LOGS[logIndex];
+        playBeep();
+        setLogs((prev) => [
+          ...prev,
+          { timestamp: formatTimestamp(), message: entry.message, level: entry.level },
+        ]);
+        logIndex++;
+        setTimeout(addNextLog, logInterval);
+      };
+
+      setTimeout(addNextLog, 400);
+    },
+    []
+  );
+
   const handleCompute = useCallback(
     async (question: string) => {
       if (phase !== "idle") return;
@@ -56,124 +86,151 @@ export default function Home() {
       setProgress(0);
       startHum();
 
-      // Start the mock API call (resolves quickly but we simulate 5s of processing)
-      mockAskUniverse(question);
+      const abort = new AbortController();
+      abortRef.current = abort;
 
-      // Simulate progressive log entries over ~5 seconds
-      const totalDuration = 5000;
-      const logCount = PROCESSING_LOGS.length;
-      const logInterval = totalDuration / logCount;
-
-      let logIndex = 0;
-
-      // Progress bar animation
-      const progressInterval = setInterval(() => {
-        setProgress((prev) => {
-          const target = ((logIndex + 1) / logCount) * 100;
-          const next = prev + (target - prev) * 0.15;
-          return Math.min(next, 100);
-        });
-      }, 50);
-
-      timerRef.current = progressInterval;
-
-      // Add logs one by one
-      const addNextLog = () => {
-        if (logIndex >= logCount) {
-          clearInterval(progressInterval);
-          setProgress(100);
-          stopHum();
-
-          // Small pause before reveal
-          setTimeout(() => {
-            playSuccess();
-            setPhase("revealed");
-          }, 600);
-          return;
-        }
-
-        const entry = PROCESSING_LOGS[logIndex];
-        playBeep();
-        setLogs((prev) => [
-          ...prev,
-          {
-            timestamp: formatTimestamp(),
-            message: entry.message,
-            level: entry.level,
-          },
-        ]);
-
-        logIndex++;
-        setTimeout(addNextLog, logInterval);
+      const reveal = () => {
+        stopHum();
+        setTimeout(() => {
+          playSuccess();
+          setPhase("revealed");
+        }, 600);
       };
 
-      // Start after a small initial delay
-      setTimeout(addNextLog, 400);
+      try {
+        const res = await fetch(`${SERVER_URL}/api/ask`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question }),
+          signal: abort.signal,
+        });
+
+        if (!res.ok || !res.body) throw new Error("stream unavailable");
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let logCount = 0;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const parts = buffer.split("\n\n");
+          buffer = parts.pop() ?? "";
+
+          for (const part of parts) {
+            const line = part.trim();
+            if (!line.startsWith("data: ")) continue;
+            const data = JSON.parse(line.slice(6)) as {
+              type: "log" | "answer";
+              message?: string;
+              level?: string;
+              answer?: number;
+            };
+
+            if (data.type === "log") {
+              playBeep();
+              logCount++;
+              setProgress((logCount / PROCESSING_LOGS.length) * 100);
+              setLogs((prev) => [
+                ...prev,
+                {
+                  timestamp: formatTimestamp(),
+                  message: data.message ?? "",
+                  level: (data.level as LogEntry["level"]) ?? "info",
+                },
+              ]);
+            } else if (data.type === "answer") {
+              setProgress(100);
+              reveal();
+            }
+          }
+        }
+      } catch (err) {
+        if ((err as Error).name === "AbortError") return;
+        // Backend offline — fallback para simulação local
+        runFallbackSimulation(reveal);
+      }
     },
-    [phase]
+    [phase, runFallbackSimulation]
   );
 
   const handleReset = () => {
     playClick();
     stopHum();
-    if (timerRef.current) clearInterval(timerRef.current);
+    abortRef.current?.abort();
     setPhase("idle");
+    setQuestion("");
     setLogs([]);
     setProgress(0);
   };
 
   return (
     <div className="relative min-h-screen scanline-overlay">
-      {/* Background — REACT BITS SWAP POINT */}
       <BackgroundEffect />
 
-      {/* Main content */}
       <main className="relative z-10 flex flex-col items-center pb-24">
-        <Hero />
 
-        {/* Console input */}
-        <Console
-          onSubmit={handleCompute}
-          isProcessing={phase === "processing"}
-          isRevealed={phase === "revealed"}
-        />
-
-        {/* Processing logs */}
-        {(phase === "processing" || (phase === "revealed" && logs.length > 0)) && (
-          <ProcessingLogs
-            logs={logs}
-            progress={progress}
-            isProcessing={phase === "processing"}
-          />
+        {/* Fase idle / processing — hero + console + logs */}
+        {phase !== "revealed" && (
+          <>
+            <Hero />
+            <Console
+              onSubmit={handleCompute}
+              isProcessing={phase === "processing"}
+              isRevealed={false}
+              question={question}
+              onQuestionChange={setQuestion}
+            />
+          </>
         )}
 
-        {/* Dont Panic shows up during processing to reassure the user */}
         {phase === "processing" && (
-           <div className="animate-fade-in-up">
-             <DontPanic />
-           </div>
+          <>
+            <ProcessingLogs
+              logs={logs}
+              progress={progress}
+              isProcessing
+            />
+            <div className="animate-fade-in-up">
+              <DontPanic />
+            </div>
+          </>
         )}
 
-        {/* The Answer: 42 */}
-        <RevealAnswer visible={phase === "revealed"} />
-
-        {/* Reset button (only after reveal) */}
+        {/* Fase revealed — 42 centralizado na viewport */}
         {phase === "revealed" && (
-          <div className="relative z-10 mb-12 animate-fade-in" style={{ animationDelay: "1.5s", opacity: 0 }}>
-            <button
-              id="reset-button"
-              onClick={handleReset}
-              className="px-5 py-2.5 rounded-lg font-mono text-sm text-dt-text-sec border border-dt-border hover:border-dt-green/30 hover:text-dt-green transition-all duration-300"
+          <div className="w-full flex flex-col items-center justify-center min-h-[80vh]">
+            <RevealAnswer visible />
+
+            <div
+              className="relative z-10 mb-4 animate-fade-in"
+              style={{ animationDelay: "1.5s", opacity: 0 }}
             >
-              ↻ Fazer outra pergunta
-            </button>
+              <button
+                id="reset-button"
+                onClick={handleReset}
+                className="px-5 py-2.5 rounded-lg font-mono text-sm text-dt-text-sec border border-dt-border hover:border-dt-green/30 hover:text-dt-green transition-all duration-300"
+              >
+                ↻ Fazer outra pergunta
+              </button>
+            </div>
           </div>
         )}
 
-        {/* Question Generator */}
+        {phase === "revealed" && (
+          <div
+            className="w-full animate-fade-in-up"
+            style={{ animationDelay: "1.2s", opacity: 0 }}
+          >
+            <Dashboard />
+          </div>
+        )}
+
         <QuestionGenerator />
 
-        {/* Footer */}
         <footer className="relative z-10 py-8 text-center">
           <p className="text-xs font-mono text-dt-text-muted">
             Bug Bang © {new Date().getFullYear()}

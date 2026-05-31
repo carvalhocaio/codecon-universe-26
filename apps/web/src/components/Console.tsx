@@ -1,19 +1,19 @@
 "use client";
 
-import { useState } from "react";
 import { playClick } from "@/lib/audio";
 
 interface ConsoleProps {
   onSubmit: (question: string) => void;
   isProcessing: boolean;
   isRevealed: boolean;
+  question: string;
+  onQuestionChange: (value: string) => void;
 }
 
 /**
  * Console — Main input area where users type their question.
  */
-export default function Console({ onSubmit, isProcessing, isRevealed }: ConsoleProps) {
-  const [question, setQuestion] = useState("");
+export default function Console({ onSubmit, isProcessing, isRevealed, question, onQuestionChange }: ConsoleProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +37,7 @@ export default function Console({ onSubmit, isProcessing, isRevealed }: ConsoleP
               id="question-input"
               type="text"
               value={question}
-              onChange={(e) => setQuestion(e.target.value)}
+              onChange={(e) => onQuestionChange(e.target.value)}
               placeholder="Pergunte qualquer coisa. A resposta já é conhecida."
               disabled={isProcessing || isRevealed}
               className="w-full bg-black/40 border border-dt-border rounded-lg pl-8 pr-4 py-3.5 text-sm font-mono text-dt-text placeholder:text-dt-text-muted focus:outline-none focus:border-dt-green/60 focus:ring-1 focus:ring-dt-green/40 focus:bg-dt-green/5 hover:border-dt-border-active transition-all disabled:opacity-50"
