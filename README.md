@@ -1,75 +1,112 @@
-# codecon-universe-26
+# Deep Thought as a Service (DTaaS)
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines Next.js, Fastify, and more.
+> *"A resposta para a Pergunta Fundamental da Vida, do Universo e Tudo Mais é... 42."*
 
-## Features
+Uma API empresarial de nível galáctico que processa **qualquer pergunta do universo** — durante 7,5 milhões de anos — e entrega, com toda a solenidade que a ocasião merece: **42**.
 
-- **TypeScript** - For type safety and improved developer experience
-- **Next.js** - Full-stack React framework
-- **TailwindCSS** - Utility-first CSS for rapid UI development
-- **Shared UI package** - shadcn/ui primitives live in `packages/ui`
-- **Fastify** - Fast, low-overhead web framework
-- **Node.js** - Runtime environment
-- **Turborepo** - Optimized monorepo build system
+Feito com amor absurdo pelo time **Bug Bang** para a [Codecon Universe 2026](https://codecon.dev).
 
-## Getting Started
+---
 
-First, install the dependencies:
+## Setup rápido
 
 ```bash
+# 1. Clone e instale
+git clone <repo-url>
+cd codecon-universe-26
 pnpm install
+
+# 2. Configure as variáveis de ambiente
+cp apps/server/.env.example apps/server/.env
+cp apps/web/.env.example    apps/web/.env
+
+# 3. Rode tudo
+pnpm dev
 ```
 
-Then, run the development server:
+| Serviço | URL |
+|---------|-----|
+| Frontend | http://localhost:3001 |
+| API      | http://localhost:4242 |
 
-```bash
-pnpm run dev
+> **Requisito:** Node.js 20+ e pnpm 9+
+
+---
+
+## O que faz
+
+1. Você digita qualquer pergunta ("Como faço deploy na sexta sem chorar?")
+2. O sistema inicia **7,5 milhões de anos de computação** — comprimidos em ~5 segundos com logs hiperdimensionais em tempo real via SSE
+3. O supercomputador entrega, com voz robótica solene: **`42`**
+4. Clique em **"Quero a Pergunta"** e descubra qual seria a pergunta cuja resposta é 42
+
+---
+
+## API
+
+```
+POST /api/ask          → SSE stream de logs + { type: "answer", answer: 42 }
+POST /api/question     → { question: "string absurda" }
+GET  /dont_panic       → health check galáctico
 ```
 
-Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
-The API is running at [http://localhost:3000](http://localhost:3000).
+### GET /dont_panic
 
-## UI Customization
-
-React web apps in this stack share shadcn/ui primitives through `packages/ui`.
-
-- Change design tokens and global styles in `packages/ui/src/styles/globals.css`
-- Update shared primitives in `packages/ui/src/components/*`
-- Adjust shadcn aliases or style config in `packages/ui/components.json` and `apps/web/components.json`
-
-### Add more shared components
-
-Run this from the project root to add more primitives to the shared UI package:
-
-```bash
-npx shadcn@latest add accordion dialog popover sheet table -c packages/ui
+```json
+{
+  "status": "healthy",
+  "message": "O cálculo está dentro da janela esperada de 7.5 milhões de anos. Não entre em pânico.",
+  "uptime": "7.500.000 anos",
+  "dont_panic": true,
+  "answer": 42,
+  "towel": true
+}
 ```
 
-Import shared components like this:
+---
 
-```tsx
-import { Button } from "@codecon-universe-26/ui/components/button";
-```
-
-### Add app-specific blocks
-
-If you want to add app-specific blocks instead of shared primitives, run the shadcn CLI from `apps/web`.
-
-## Project Structure
+## Arquitetura
 
 ```
 codecon-universe-26/
 ├── apps/
-│   ├── web/         # Frontend application (Next.js)
-│   └── server/      # Backend API (Fastify)
+│   ├── web/              # Next.js 16 — landing, console, dashboard de SLA
+│   └── server/           # Fastify 5 — a "infraestrutura" do Deep Thought
 ├── packages/
-│   ├── ui/          # Shared shadcn/ui components and styles
+│   ├── answer/           # export const ANSWER = 42  ← a única dependência core
+│   ├── ui/               # componentes shadcn/ui compartilhados
+│   ├── env/              # variáveis de ambiente tipadas (t3-oss/env)
+│   └── config/           # tsconfig base compartilhado
+└── turbo.json
 ```
 
-## Available Scripts
+**Stack:** TypeScript · Turborepo · Next.js · Fastify · Tailwind v4 · React Bits (Aurora, DecryptedText, CountUp) · Web Speech API · Web Audio API
 
-- `pnpm run dev`: Start all applications in development mode
-- `pnpm run build`: Build all applications
-- `pnpm run dev:web`: Start only the web application
-- `pnpm run dev:server`: Start only the server
-- `pnpm run check-types`: Check TypeScript types across all apps
+---
+
+## Easter eggs para quem inspecionar o código
+
+| Assinatura | Onde |
+|-----------|------|
+| API na porta **4242** | `apps/server/src/index.ts` |
+| Versão **v42.0.0** | `packages/answer/package.json` |
+| `const ANSWER = 42` | `packages/answer/src/index.ts` |
+| Delay base: **42 × 120ms** | `apps/server/src/index.ts` |
+
+---
+
+## Scripts disponíveis
+
+```bash
+pnpm dev            # inicia tudo (web + server)
+pnpm dev:web        # só o frontend
+pnpm dev:server     # só a API
+pnpm build          # build de produção
+pnpm check-types    # TypeScript em todos os packages
+```
+
+---
+
+*"Don't Panic." — e leve uma toalha.*
+
+**Bug Bang** · Codecon Universe 2026
