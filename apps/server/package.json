@@ -10,6 +10,7 @@
     "start": "node dist/index.mjs"
   },
   "dependencies": {
+    "@codecon-universe-26/answer": "workspace:*",
     "@codecon-universe-26/env": "workspace:*",
     "@fastify/cors": "^11.0.1",
     "dotenv": "catalog:",
