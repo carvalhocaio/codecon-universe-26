@@ -1,1 +1,280 @@
-@import "@codecon-universe-26/ui/globals.css";
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════════
+   Deep Thought as a Service — Design Tokens & Global Styles
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --dt-bg: #070A12;
+  --dt-bg-surface: #0D1321;
+  --dt-blue-deep: #102A43;
+  --dt-blue-mid: #1B3A5C;
+  --dt-green-terminal: #7CFFB2;
+  --dt-amber: #FFD166;
+  --dt-text-primary: #EAF2FF;
+  --dt-text-secondary: #8A94A6;
+  --dt-text-muted: #5A6478;
+  --dt-border: rgba(234, 242, 255, 0.08);
+  --dt-border-active: rgba(124, 255, 178, 0.25);
+  --dt-glow-green: rgba(124, 255, 178, 0.15);
+  --dt-glow-amber: rgba(255, 209, 102, 0.2);
+}
+
+@theme inline {
+  --color-background: var(--dt-bg);
+  --color-foreground: var(--dt-text-primary);
+  --color-dt-bg: var(--dt-bg);
+  --color-dt-surface: var(--dt-bg-surface);
+  --color-dt-blue: var(--dt-blue-deep);
+  --color-dt-blue-mid: var(--dt-blue-mid);
+  --color-dt-green: var(--dt-green-terminal);
+  --color-dt-amber: var(--dt-amber);
+  --color-dt-text: var(--dt-text-primary);
+  --color-dt-text-sec: var(--dt-text-secondary);
+  --color-dt-text-muted: var(--dt-text-muted);
+  --color-dt-border: var(--dt-border);
+  --color-dt-border-active: var(--dt-border-active);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* ── Base ──────────────────────────────────────────────────── */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--dt-bg);
+  color: var(--dt-text-primary);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+/* ── Scrollbar ────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--dt-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--dt-blue-mid);
+  border-radius: 3px;
+}
+
+/* ── Animations ───────────────────────────────────────────── */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px var(--dt-glow-green), 0 0 60px rgba(124, 255, 178, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 40px var(--dt-glow-green), 0 0 100px rgba(124, 255, 178, 0.1);
+  }
+}
+
+@keyframes pulse-amber {
+  0%, 100% {
+    text-shadow: 0 0 50px rgba(255, 209, 102, 0.5), 0 0 100px rgba(255, 209, 102, 0.25);
+  }
+  50% {
+    text-shadow: 0 0 100px rgba(255, 209, 102, 0.8), 0 0 180px rgba(255, 209, 102, 0.4), 0 0 300px rgba(255, 209, 102, 0.2);
+  }
+}
+
+@keyframes reveal-42 {
+  0% {
+    opacity: 0;
+    transform: scale(0.1) translateY(40px);
+    filter: blur(30px);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.1) translateY(-10px);
+    filter: blur(10px);
+  }
+  60% {
+    transform: scale(0.95) translateY(5px);
+    filter: blur(2px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes typing-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes progress-glow {
+  0% {
+    box-shadow: 0 0 8px var(--dt-glow-green);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--dt-glow-green), 0 0 40px rgba(124, 255, 178, 0.1);
+  }
+  100% {
+    box-shadow: 0 0 8px var(--dt-glow-green);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes log-appear {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes drift-right {
+  from { transform: translateX(-10vw) rotate(0deg); }
+  to { transform: translateX(110vw) rotate(15deg); }
+}
+
+@keyframes drift-left {
+  from { transform: translateX(110vw) rotate(0deg); }
+  to { transform: translateX(-10vw) rotate(-15deg); }
+}
+
+/* ── Utility Classes ──────────────────────────────────────── */
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.4s ease-out forwards;
+}
+
+.animate-reveal-42 {
+  animation: reveal-42 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.animate-pulse-amber {
+  animation: pulse-amber 3s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-log-appear {
+  animation: log-appear 0.35s ease-out forwards;
+}
+
+/* ── Glass Card ───────────────────────────────────────────── */
+
+.glass-card {
+  background: linear-gradient(
+    135deg,
+    rgba(13, 19, 33, 0.85),
+    rgba(16, 42, 67, 0.5)
+  );
+  border: 1px solid var(--dt-border);
+  backdrop-filter: blur(16px);
+  border-radius: 12px;
+  box-shadow: inset 0 0 20px rgba(234, 242, 255, 0.02), 0 8px 32px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+  
+.glass-card:hover {
+  border-color: var(--dt-border-active);
+  box-shadow: inset 0 0 30px rgba(124, 255, 178, 0.05), 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Progress Bar ─────────────────────────────────────────── */
+
+.progress-bar-fill {
+  background: linear-gradient(90deg, var(--dt-green-terminal), #5CE0A0, var(--dt-green-terminal));
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite, progress-glow 2s ease-in-out infinite;
+  border-radius: 4px;
+  transition: width 0.3s ease-out;
+}
+
+/* ── Scanline Overlay (Cleaned up) ──────────────────────────────── */
+
+.scanline-overlay::before,
+.scanline-overlay::after {
+  content: none;
+}
+
+/* ── The 42 ───────────────────────────────────────────────── */
+
+.the-answer {
+  font-size: clamp(8rem, 25vw, 18rem);
+  font-weight: 900;
+  color: var(--dt-amber);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+/* ── Metric Card ──────────────────────────────────────────── */
+
+.metric-value {
+  font-family: var(--font-geist-mono), monospace;
+  font-variant-numeric: tabular-nums;
+}

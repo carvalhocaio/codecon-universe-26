@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "codecon-universe-26",
-  description: "codecon-universe-26",
+  title: "Deep Thought as a Service",
+  description: "Respostas de nível enterprise para a incerteza fundamental da existência.",
 };
 
 export default function RootLayout({
