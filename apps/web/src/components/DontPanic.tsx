@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { mockDontPanic, type HealthCheck } from "@/lib/mocks";
 
+const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL ?? "http://localhost:4242";
+
 /**
  * DontPanic — Health check display / easter egg section.
  */
@@ -10,7 +12,10 @@ export default function DontPanic() {
   const [health, setHealth] = useState<HealthCheck | null>(null);
 
   useEffect(() => {
-    mockDontPanic().then(setHealth);
+    fetch(`${SERVER_URL}/dont_panic`)
+      .then((r) => r.json() as Promise<HealthCheck>)
+      .then(setHealth)
+      .catch(() => mockDontPanic().then(setHealth));
   }, []);
 
   return (

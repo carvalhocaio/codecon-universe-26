@@ -1,5 +1,7 @@
 "use client";
 
+import CountUp from "@/components/reactbits/CountUp";
+
 /**
  * ╔══════════════════════════════════════════════════════════════╗
  * ║  REACT BITS SWAP POINT: Dashboard metrics                   ║
@@ -11,6 +13,7 @@
 interface MetricCard {
   label: string;
   value: string;
+  countTo?: number;
   mono?: boolean;
   accent?: "green" | "amber" | "default";
 }
@@ -19,7 +22,7 @@ const METRICS: MetricCard[] = [
   { label: "Tempo de Ativ.", value: "7.500.000 anos", accent: "green" },
   { label: "Disponibilidade", value: "100%", accent: "green" },
   { label: "Versão da API", value: "v42.0.0", mono: true },
-  { label: "Dependência Core", value: "ANSWER = 42", mono: true, accent: "amber" },
+  { label: "Dependência Core", value: "ANSWER = ", countTo: 42, mono: true, accent: "amber" },
   { label: "Health Check", value: "GET /dont_panic", mono: true },
   { label: "Status", value: "dont_panic(): healthy", mono: true, accent: "green" },
 ];
@@ -54,13 +57,24 @@ export default function Dashboard() {
               <span className={`inline-block w-1.5 h-1.5 rounded-full ${metric.accent === "green" ? "bg-dt-green/60 group-hover:bg-dt-green group-hover:shadow-[0_0_8px_rgba(124,255,178,0.8)]" : metric.accent === "amber" ? "bg-dt-amber/60 group-hover:bg-dt-amber group-hover:shadow-[0_0_8px_rgba(255,209,102,0.8)]" : "bg-dt-text-muted/50 group-hover:bg-dt-text-sec"} transition-all duration-300`} />
               {metric.label}
             </p>
-            {/* REACT BITS: Wrap value with <CountUp> for numeric values */}
             <p
               className={`text-sm font-semibold pl-3.5 ${
                 metric.mono ? "font-mono" : ""
               } metric-value ${accentClasses[metric.accent || "default"]} group-hover:translate-x-1 group-hover:scale-[1.02] transition-all duration-300 drop-shadow-sm`}
             >
-              {metric.value}
+              {metric.countTo !== undefined ? (
+                <>
+                  {metric.value}
+                  <CountUp
+                    to={metric.countTo}
+                    duration={2}
+                    delay={i * 0.1}
+                    className=""
+                  />
+                </>
+              ) : (
+                metric.value
+              )}
             </p>
           </div>
         ))}

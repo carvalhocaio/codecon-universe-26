@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import DecryptedText from "@/components/reactbits/DecryptedText";
 
 /**
  * ╔══════════════════════════════════════════════════════════════╗
@@ -61,11 +62,19 @@ export default function RevealAnswer({ visible }: RevealAnswerProps) {
         <div className="absolute w-[250px] h-[250px] rounded-full bg-yellow-400/20 blur-[80px] mix-blend-screen" />
       </div>
 
-      {/* The Answer — REACT BITS: Replace with <DecryptedText text="42" /> */}
-      <div className="relative animate-reveal-42">
-        <span className="the-answer animate-pulse-amber select-none relative z-10">
-          42
-        </span>
+      {/* The Answer — DecryptedText from React Bits */}
+      <div className="relative animate-reveal-42" key={visible ? "visible" : "hidden"}>
+        <DecryptedText
+          text="42"
+          speed={60}
+          sequential
+          revealDirection="center"
+          animateOn="view"
+          characters="0123456789!@#$%^&*ABCDEFabcdef"
+          className="the-answer animate-pulse-amber select-none relative z-10"
+          encryptedClassName="the-answer opacity-40 relative z-10"
+          parentClassName="the-answer-wrap"
+        />
       </div>
 
       {/* Supporting text */}

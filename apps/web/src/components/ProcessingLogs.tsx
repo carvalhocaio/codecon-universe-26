@@ -1,6 +1,6 @@
 "use client";
 
-import { LogEntry } from "@/lib/mocks";
+import type { LogEntry } from "@/lib/mocks";
 
 /**
  * ╔══════════════════════════════════════════════════════════════╗

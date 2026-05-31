@@ -4,6 +4,8 @@ import { useState } from "react";
 import { mockGenerateQuestion } from "@/lib/mocks";
 import { playClick } from "@/lib/audio";
 
+const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL ?? "http://localhost:4242";
+
 /**
  * QuestionGenerator — "Quero a Pergunta" button that reveals random absurd questions.
  */
@@ -14,11 +16,20 @@ export default function QuestionGenerator() {
   const handleGenerate = () => {
     playClick();
     setIsAnimating(true);
-    // Small delay for drama
-    setTimeout(() => {
-      setCurrentQuestion(mockGenerateQuestion());
-      setIsAnimating(false);
-    }, 300);
+    fetch(`${SERVER_URL}/api/question`, { method: "POST" })
+      .then((r) => r.json() as Promise<{ question: string }>)
+      .then((d) => {
+        setTimeout(() => {
+          setCurrentQuestion(d.question);
+          setIsAnimating(false);
+        }, 300);
+      })
+      .catch(() => {
+        setTimeout(() => {
+          setCurrentQuestion(mockGenerateQuestion());
+          setIsAnimating(false);
+        }, 300);
+      });
   };
 
   return (
